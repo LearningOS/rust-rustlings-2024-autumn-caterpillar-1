@@ -1,8 +1,7 @@
 /*
-	heap
-	This question requires you to implement a binary heap function
+    heap
+    This question requires you to implement a binary heap function
 */
-// I AM NOT DONE
 
 use std::cmp::Ord;
 use std::default::Default;
@@ -33,11 +32,31 @@ where
     }
 
     pub fn is_empty(&self) -> bool {
-        self.len() == 0
+        self.len() == 1
     }
 
     pub fn add(&mut self, value: T) {
-        //TODO
+        self.items.push(value);
+
+        let mut p = self.parent_idx(self.items.len() - 1);
+
+        while p != 0 {
+            let l = self.left_child_idx(p);
+            let r = self.right_child_idx(p);
+            let c = if r >= self.items.len() {
+                l
+            } else if (self.comparator)(&self.items[l], &self.items[r]) {
+                l
+            } else {
+                r
+            };
+            if (self.comparator)(&self.items[c], &self.items[p]) {
+                self.items.swap(c, p);
+            }
+            p = self.parent_idx(p);
+        }
+
+        self.count += 1;
     }
 
     fn parent_idx(&self, idx: usize) -> usize {
@@ -57,8 +76,7 @@ where
     }
 
     fn smallest_child_idx(&self, idx: usize) -> usize {
-        //TODO
-		0
+        1
     }
 }
 
@@ -84,8 +102,37 @@ where
     type Item = T;
 
     fn next(&mut self) -> Option<T> {
-        //TODO
-		None
+        if self.count == 0 {
+            return None;
+        }
+        let result = self.items.swap_remove(1);
+
+        let mut p = 1usize;
+        while self.right_child_idx(p) < self.items.len() {
+            if !self.children_present(p) {
+                break;
+            }
+
+            let l = self.left_child_idx(p);
+            let r = self.right_child_idx(p);
+            let c = if r >= self.items.len() {
+                l
+            } else if (self.comparator)(&self.items[l], &self.items[r]) {
+                l
+            } else {
+                r
+            };
+
+            if ((self.comparator)(&self.items[c], &self.items[p])) {
+                self.items.swap(p, c)
+            }
+
+            p = c;
+        }
+
+        self.count -= 1;
+
+        Some(result)
     }
 }
 
